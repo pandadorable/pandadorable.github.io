@@ -1,43 +1,27 @@
-<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>LiteGraph Demo</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litegraph.js/css/litegraph.css">
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      height: 100%;
-    }
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-  </style>
+	<link rel="stylesheet" type="text/css" href="litegraph.css">
+	<script type="text/javascript" src="litegraph.js"></script>
 </head>
-<body>
-  <canvas id="mycanvas"></canvas>
+<body style='width:100%; height:100%'>
+<canvas id='mycanvas' width='1024' height='720' style='border: 1px solid'></canvas>
+<script>
+var graph = new LGraph();
 
-  <script src="https://cdn.jsdelivr.net/npm/litegraph.js/build/litegraph.min.js"></script>
-  <script>
-    const graph = new LGraph();
-    const canvas = new LGraphCanvas("#mycanvas", graph);
+var canvas = new LGraphCanvas("#mycanvas", graph);
 
-    const node_const = LiteGraph.createNode("basic/const");
-    node_const.pos = [200, 200];
-    node_const.setValue(1337);
-    graph.add(node_const);
+var node_const = LiteGraph.createNode("basic/const");
+node_const.pos = [200,200];
+graph.add(node_const);
+node_const.setValue(4.5);
 
-    const node_watch = LiteGraph.createNode("basic/watch");
-    node_watch.pos = [400, 200];
-    graph.add(node_watch);
+var node_watch = LiteGraph.createNode("basic/watch");
+node_watch.pos = [700,200];
+graph.add(node_watch);
 
-    node_const.connect(0, node_watch, 0);
+node_const.connect(0, node_watch, 0 );
 
-    graph.start();
-  </script>
+graph.start()
+</script>
 </body>
 </html>
