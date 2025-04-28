@@ -1,0 +1,14 @@
+{
+    "Null" : "./satisfactory/ressources/Null.png",
+    
+    "Iron Ore" : "./satisfactory/ressources/ores/Iron_Ore.png",
+    "Caterium Ore" : "./satisfactory/ressources/ores/Caterium_Ore.png",
+    "Copper Ore" : "./satisfactory/ressources/ores/Copper_Ore.png",
+    "Limestone" : "./satisfactory/ressources/ores/Limestone.png",
+    "Coal" : "./satisfactory/ressources/ores/Coal.png",
+    "Raw Quartz" : "./satisfactory/ressources/ores/Raw_Quartz.png",
+    "Sulfur" : "./satisfactory/ressources/ores/Sulfur.png",
+    "Uranium" : "./satisfactory/ressources/ores/Uranium.png",
+    "Bauxite" : "./satisfactory/ressources/ores/Bauxite.png",
+    "SAM" : "./satisfactory/ressources/ores/SAM.png"
+}
