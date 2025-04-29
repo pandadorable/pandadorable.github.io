@@ -1,10 +1,17 @@
 //node constructor class
 function Miner()
 {
-  this.properties = {mark: 1, purity: "Normal", ore: "None"}
+  this.properties = {mark: 1, purity: "Normal", ore: "None", nodeItem: new SatisfactoryItem()}
   this.resizable = false;
 
-  this.addWidget("number","Mark",1,{property: "mark", min: 1, max: 3, step:10, precision: 0});
+  this.updateNodeItem = function(){
+    console.log(this.properties.mark);
+  }
+
+  this.addWidget("number","Mark",1,
+    {property: "mark", min: 1, max: 3, step:10, precision: 0},
+    this.updateNodeItem());
+
   this.addWidget("combo","Purity","Normal",{property: "purity", values: ["Impure","Normal","Pure"]});
   this.addWidget("combo","Ressource Node","None",{property: "ore", values: global_ores});
 
@@ -13,6 +20,8 @@ function Miner()
 
   this.size = [250, 200];
 }
+
+
 
 //name to show
 Miner.title = "Miner";

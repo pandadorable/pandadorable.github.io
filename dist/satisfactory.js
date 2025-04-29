@@ -52,6 +52,11 @@ class SatisfactoryItem {
     this.number *= mux;
   }
 
+  setName(name) {
+    this.name = name;
+    this.oreImage.src = ressource_path[this.name];
+  }
+
 
 }
 /**
@@ -114,10 +119,17 @@ LiteGraph.registerNodeType("satisfactory/screen", Screen );
 //node constructor class
 function Miner()
 {
-  this.properties = {mark: 1, purity: "Normal", ore: "None"}
+  this.properties = {mark: 1, purity: "Normal", ore: "None", nodeItem: new SatisfactoryItem()}
   this.resizable = false;
 
-  this.addWidget("number","Mark",1,{property: "mark", min: 1, max: 3, step:10, precision: 0});
+  this.updateNodeItem = function(){
+    console.log(this.properties.mark);
+  }
+
+  this.addWidget("number","Mark",1,
+    {property: "mark", min: 1, max: 3, step:10, precision: 0},
+    this.updateNodeItem());
+
   this.addWidget("combo","Purity","Normal",{property: "purity", values: ["Impure","Normal","Pure"]});
   this.addWidget("combo","Ressource Node","None",{property: "ore", values: global_ores});
 
@@ -126,6 +138,8 @@ function Miner()
 
   this.size = [250, 200];
 }
+
+
 
 //name to show
 Miner.title = "Miner";
@@ -148,7 +162,7 @@ Miner.prototype.onExecute = function()
     "Pure": 2
   }[this.properties.purity] ?? 0;
 
-  this.properties.out[0].setNumber(purity_modifier * mining_speed); // * this.properties.overclocking.value / 100;
+  this.properties.out[0].setNumber(purity_modifier * mining_speed);
 
   FactoryExecutor(this);
 
