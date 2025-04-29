@@ -25,7 +25,7 @@ function makeOvercloackable(node_class) {
 
 class SatisfactoryItem {
   number = 0;
-  name = "Null";
+  name = "None";
   oreImage = new Image();
   oreImageSize = [50,50];
 
@@ -35,6 +35,13 @@ class SatisfactoryItem {
 
   toString() {
     return this.number+" "+this.name;
+  }
+
+  drawImage(ctx, pos, size) {
+    ctx.drawImage(this.oreImage, size[0]/2-this.oreImageSize[0]/2+pos[0], size[1]-this.oreImageSize[1]+pos[1], this.oreImageSize[0], this.oreImageSize[1]);
+    ctx.fillStyle = "white";
+    ctx.font = "bold 30px Arial"
+    ctx.fillText("x"+parseFloat(this.number).toFixed(2), size[0]/2+pos[0]+10, size[1]+pos[1]-5);
   }
 
   set(otherItem) {
@@ -53,6 +60,9 @@ class SatisfactoryItem {
   }
 
   setName(name) {
+    if(this.name == name){
+      return;
+    }
     this.name = name;
     this.oreImage.src = ressource_path[this.name];
   }
@@ -63,8 +73,8 @@ class SatisfactoryItem {
     * Construct the basic 
     * @method registerNodeType
     * @param {Class} factory_class class containing the structure of a node
-    * @param {number} input number of input
-    * @param {number} second_output number of output
+    * @param {number} input list of the input's names
+    * @param {number} output list of the output's names
 */
 function FactoryConstructor(factory_class, input, output) {
 
@@ -82,7 +92,7 @@ function FactoryConstructor(factory_class, input, output) {
 
     if(factory_class.properties.overclockable) {
         factory_class.properties = {...factory_class.properties, ...{overclocking: 100}};
-        factory_class.addWidget("slider","Overclocking",100,{property: "overclocking", min: 0, max: 250, step:1, precision: 2});
+        factory_class.addWidget("number","Overclocking",100,{property: "overclocking", min: 0, max: 250, step:0.1, precision: 2});
     }
 }
 
@@ -94,10 +104,6 @@ function FactoryExecutor(factory_class) {
     Object.keys(factory_class.properties.out).forEach(key => {
         factory_class.setOutputData(key,factory_class.properties.out[key])
     })
-
-    // factory_class.properties.out.array.forEach(([index,item]) => {
-    //     factory_class.setOutputData(index,item)
-    // })
 }
 //display Node
 function Screen(){
@@ -119,27 +125,17 @@ LiteGraph.registerNodeType("satisfactory/screen", Screen );
 //node constructor class
 function Miner()
 {
-  this.properties = {mark: 1, purity: "Normal", ore: "None", nodeItem: new SatisfactoryItem()}
+  this.properties = {mark: 1, purity: "Normal", ore: "None"}
   this.resizable = false;
 
-  this.updateNodeItem = function(){
-    console.log(this.properties.mark);
-  }
-
-  this.addWidget("number","Mark",1,
-    {property: "mark", min: 1, max: 3, step:10, precision: 0},
-    this.updateNodeItem());
-
+  this.addWidget("number","Mark",1,{property: "mark", min: 1, max: 3, step:10, precision: 0});
   this.addWidget("combo","Purity","Normal",{property: "purity", values: ["Impure","Normal","Pure"]});
   this.addWidget("combo","Ressource Node","None",{property: "ore", values: global_ores});
 
   FactoryConstructor(this, [], ["ore"]);
 
-
   this.size = [250, 200];
 }
-
-
 
 //name to show
 Miner.title = "Miner";
@@ -162,22 +158,16 @@ Miner.prototype.onExecute = function()
     "Pure": 2
   }[this.properties.purity] ?? 0;
 
-  this.properties.out[0].setNumber(purity_modifier * mining_speed);
+  this.properties.out[0].setNumber(purity_modifier * mining_speed * this.properties.overclocking / 100 );
+  this.properties.out[0].setName(this.properties.ore);
 
   FactoryExecutor(this);
-
-  // this.oreImage.src = './satisfactory/ressources/'+(ressource_path[this.properties.ore] || 'Null.png');
-
-  // this.setOutputData(0, parseFloat(this.output_speed));
 }
 
-// Miner.prototype.onDrawBackground = function(ctx) {
-//     // On attend que l'image soit chargÃ©e pour l'afficher
-//     ctx.drawImage(this.oreImage, this.size[0]/2-this.oreImageSize[0]/2-40, this.size[1]-this.oreImageSize[1]-15, this.oreImageSize[0], this.oreImageSize[1]);
-//     ctx.fillStyle = "white";
-//     ctx.font = "bold 30px Arial"
-//     ctx.fillText("x"+parseFloat(this.output_speed).toFixed(2), this.size[0]/2+10-40, this.size[1]-20);
-// };
+Miner.prototype.onDrawBackground = function(ctx) {
+    // On attend que l'image soit chargÃ©e pour l'afficher
+    this.properties.out[0].drawImage(ctx,[-40,-15],this.size);
+};
 
 //register in the system
 LiteGraph.registerNodeType("satisfactory/miner", Miner );
