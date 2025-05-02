@@ -1,17 +1,18 @@
 //display Node
 function Screen(){
-    this.addInput("Item", "SatisfactoryItem");
-    this.value = new SatisfactoryItem();
+    FactoryConstructor(this, ["input"], [], false);
+    this.size = [250, 70];
 }
 
 Screen.title = "Screen"
 Screen.prototype.onExecute = function() {
-    if (this.getInputData(0)) {
-        this.value.set(this.getInputData(0));
-    }
+    FactoryExecutor(this);
 };
 Screen.prototype.onDrawBackground = function(ctx) {
-    //show the current value
-    this.inputs[0].label = this.value.toString();
+    if (this.flags.collapsed) {
+        return;
+    }
+    this.properties.input[0].drawImage(ctx,[-30,-10],this.size);
 };
+
 LiteGraph.registerNodeType("satisfactory/screen", Screen );

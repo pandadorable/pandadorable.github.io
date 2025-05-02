@@ -19,10 +19,6 @@ fetch('./satisfactory/items.json')
   .catch(error => console.error("Erreur lors du chargement du fichier JSON", error));
 
 
-function makeOvercloackable(node_class) {
-  
-}
-
 class SatisfactoryItem {
   number = 0;
   name = "None";
@@ -46,9 +42,8 @@ class SatisfactoryItem {
 
   set(otherItem) {
     this.number = otherItem.number;
-    this.name = otherItem.name;
+    this.setName(otherItem.name);
     this.oreImageSize = otherItem.oreImageSize;
-    this.oreImage.src = ressource_path[this.name];
   }
 
   setNumber(number){
@@ -76,51 +71,54 @@ class SatisfactoryItem {
     * @param {number} input list of the input's names
     * @param {number} output list of the output's names
 */
-function FactoryConstructor(factory_class, input, output) {
+function FactoryConstructor(factory_class, input, output, overclockable = true) {
 
-    factory_class.properties = {...factory_class.properties, ...{in: {}, out: {}, overclockable: true}}
+    factory_class.properties = {...factory_class.properties, ...{input: {}, output: {}, buffer: {}}}
 
     input.forEach((name, index) => {
-        factory_class.properties.in[index] = new SatisfactoryItem();
+        factory_class.properties.input[index] = new SatisfactoryItem();
         factory_class.addInput(name,"SatisfactoryItem");
     });
 
     output.forEach((name, index) => {
-        factory_class.properties.out[index] = new SatisfactoryItem();
+        factory_class.properties.output[index] = new SatisfactoryItem();
+        factory_class.properties.buffer[index] = new SatisfactoryItem();
         factory_class.addOutput(name,"SatisfactoryItem");
     });
 
-    if(factory_class.properties.overclockable) {
+    if(overclockable) {
         factory_class.properties = {...factory_class.properties, ...{overclocking: 100}};
         factory_class.addWidget("number","Overclocking",100,{property: "overclocking", min: 0, max: 250, step:0.1, precision: 2});
     }
 }
 
 function FactoryExecutor(factory_class) {
-    Object.keys(factory_class.properties.in).forEach(key => {
-        factory_class.setInputData(key,factory_class.properties.in[key])
+    Object.keys(factory_class.properties.input).forEach(key => {
+        factory_class.properties.input[key].set(factory_class.getInputData(key))
     })
 
-    Object.keys(factory_class.properties.out).forEach(key => {
-        factory_class.setOutputData(key,factory_class.properties.out[key])
+    Object.keys(factory_class.properties.buffer).forEach(key => {
+        factory_class.properties.output[key].setNumber(factory_class.properties.buffer[key].number * factory_class.properties.overclocking / 100);
+        factory_class.setOutputData(key,factory_class.properties.output[key])
     })
 }
 //display Node
 function Screen(){
-    this.addInput("Item", "SatisfactoryItem");
-    this.value = new SatisfactoryItem();
+    FactoryConstructor(this, ["input"], [], false);
+    this.size = [250, 70];
 }
 
 Screen.title = "Screen"
 Screen.prototype.onExecute = function() {
-    if (this.getInputData(0)) {
-        this.value.set(this.getInputData(0));
-    }
+    FactoryExecutor(this);
 };
 Screen.prototype.onDrawBackground = function(ctx) {
-    //show the current value
-    this.inputs[0].label = this.value.toString();
+    if (this.flags.collapsed) {
+        return;
+    }
+    this.properties.input[0].drawImage(ctx,[-30,-10],this.size);
 };
+
 LiteGraph.registerNodeType("satisfactory/screen", Screen );
 //node constructor class
 function Miner()
@@ -158,15 +156,18 @@ Miner.prototype.onExecute = function()
     "Pure": 2
   }[this.properties.purity] ?? 0;
 
-  this.properties.out[0].setNumber(purity_modifier * mining_speed * this.properties.overclocking / 100 );
-  this.properties.out[0].setName(this.properties.ore);
+  this.properties.buffer[0].setNumber(purity_modifier * mining_speed);
+  this.properties.buffer[0].setName(this.properties.ore);
+  this.properties.output[0].setName(this.properties.ore);
 
   FactoryExecutor(this);
 }
 
 Miner.prototype.onDrawBackground = function(ctx) {
-    // On attend que l'image soit chargÃ©e pour l'afficher
-    this.properties.out[0].drawImage(ctx,[-40,-15],this.size);
+  if (this.flags.collapsed) {
+    return;
+  }
+  this.properties.output[0].drawImage(ctx,[-40,-15],this.size);
 };
 
 //register in the system

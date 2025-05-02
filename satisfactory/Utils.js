@@ -42,9 +42,8 @@ class SatisfactoryItem {
 
   set(otherItem) {
     this.number = otherItem.number;
-    this.name = otherItem.name;
+    this.setName(otherItem.name);
     this.oreImageSize = otherItem.oreImageSize;
-    this.oreImage.src = ressource_path[this.name];
   }
 
   setNumber(number){

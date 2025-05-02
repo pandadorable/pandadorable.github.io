@@ -34,15 +34,18 @@ Miner.prototype.onExecute = function()
     "Pure": 2
   }[this.properties.purity] ?? 0;
 
-  this.properties.out[0].setNumber(purity_modifier * mining_speed * this.properties.overclocking / 100 );
-  this.properties.out[0].setName(this.properties.ore);
+  this.properties.buffer[0].setNumber(purity_modifier * mining_speed);
+  this.properties.buffer[0].setName(this.properties.ore);
+  this.properties.output[0].setName(this.properties.ore);
 
   FactoryExecutor(this);
 }
 
 Miner.prototype.onDrawBackground = function(ctx) {
-    // On attend que l'image soit chargée pour l'afficher
-    this.properties.out[0].drawImage(ctx,[-40,-15],this.size);
+  if (this.flags.collapsed) {
+    return;
+  }
+  this.properties.output[0].drawImage(ctx,[-40,-15],this.size);
 };
 
 //register in the system
